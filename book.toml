@@ -31,8 +31,8 @@ level = 1
 #no-page-break-before-chapter = true
 #two-sided = false
 
-#[output.epub]
-#optional = true
+[output.epub]
+optional = true
 
 [preprocessor.auto-gen-summary]
 command = "mdbook-auto-gen-summary"

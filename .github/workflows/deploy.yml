@@ -31,6 +31,7 @@ jobs:
           profile: minimal
 
       - name: Cache dependencies
+        id: cache-dependencies
         uses: actions/cache@v3
         with:
           path: |
@@ -38,10 +39,14 @@ jobs:
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: ${{ runner.os }}-cargo-
+            target/
+          key: ${{ runner.os }}-cargo-bins-${{ hashFiles('**/Cargo.lock', '**/.github/workflows/deploy.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-bins-
+            ${{ runner.os }}-cargo-
 
       - name: Install mdBook and plugins
+        if: steps.cache-dependencies.outputs.cache-hit != 'true'
         run: |
           cargo install mdbook --no-default-features --features search
           cargo install mdbook-epub
@@ -63,7 +68,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:
-          path: book
+          path: book/html
 
   deploy:
     environment:
