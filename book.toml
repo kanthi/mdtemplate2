@@ -19,20 +19,20 @@ no-section-label = true
 enable = true
 level = 1
 
-[output.pdf]
-optional = true
-paper-width = 8.5
-paper-height = 11
-margin-top = 1.2
-margin-bottom = 1.2
-margin-left = 1.2
-margin-right = 1.2
-print-toc = true
-no-page-break-before-chapter = true
-two-sided = false
+#[output.pdf]
+#optional = true
+#paper-width = 8.5
+#paper-height = 11
+#margin-top = 1.2
+#margin-bottom = 1.2
+#margin-left = 1.2
+#margin-right = 1.2
+#print-toc = true
+#no-page-break-before-chapter = true
+#two-sided = false
 
-[output.epub]
-optional = true
+#[output.epub]
+#optional = true
 
 [preprocessor.auto-gen-summary]
 command = "mdbook-auto-gen-summary"
