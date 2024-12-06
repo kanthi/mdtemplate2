@@ -22,11 +22,7 @@ margin-bottom = 1.5
 margin-left = 2.0
 margin-right = 2.0
 
-[output.epub]
-optional = true
-use-default-css = true
-cover-image = "cover.html"
-additional-css = ["src/epub.css"]
+
 
 [preprocessor.links]
 # Fixes links between books
