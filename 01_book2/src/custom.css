@@ -1,0 +1,23 @@
+/* Custom styles */
+.content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+.nav-chapters {
+    min-width: 50px;
+    width: 50px;
+}
+
+/* Dark theme adjustments */
+.ayu {
+    --bg: #0f1419;
+    --fg: #c5c5c5;
+}
+
+/* Light theme adjustments */
+.light {
+    --bg: #ffffff;
+    --fg: #333333;
+}

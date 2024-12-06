@@ -6,17 +6,7 @@ build_book() {
     if [ -f "${book_dir}/book.toml" ]; then
         echo "Building ${book_dir}..."
         (cd "${book_dir}" && mdbook build)
-        
-        # Generate PDF and EPUB if the preprocessors are installed
-        if command -v mdbook-pdf >/dev/null 2>&1; then
-            echo "Generating PDF for ${book_dir}..."
-            (cd "${book_dir}" && mdbook-pdf)
-        fi
-        
-        if command -v mdbook-epub >/dev/null 2>&1; then
-            echo "Generating EPUB for ${book_dir}..."
-            (cd "${book_dir}" && mdbook-epub)
-        fi
+
     fi
 }
 

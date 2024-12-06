@@ -1,0 +1,1 @@
+# lscpu and lsmem
