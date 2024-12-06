@@ -28,39 +28,58 @@ jobs:
           toolchain: stable
           profile: minimal
 
-      - name: Cache Cargo dependencies
+      - name: Cache Cargo dependencies and mdBook tools
         uses: actions/cache@v4
         with:
           path: |
+            ~/.cargo/bin/mdbook
+            ~/.cargo/bin/mdbook-epub
+            ~/.cargo/bin/mdbook-pdf
+            ~/.cargo/bin/mdbook-auto-gen-summary
             ~/.cargo/registry
             ~/.cargo/git
             target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-mdbook-tools-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
-            ${{ runner.os }}-cargo-
+            ${{ runner.os }}-mdbook-tools-
 
-      - name: Install mdBook and plugins
+      - name: Install mdBook and plugins if not cached
         run: |
-          cargo install mdbook --locked --no-default-features --features search || true
-          cargo install mdbook-epub || true
-          cargo install mdbook-pdf || true
-          cargo install mdbook-auto-gen-summary || true
+          [[ -f ~/.cargo/bin/mdbook ]] || cargo install mdbook --locked --no-default-features --features search
+          [[ -f ~/.cargo/bin/mdbook-epub ]] || cargo install mdbook-epub --locked
+          [[ -f ~/.cargo/bin/mdbook-pdf ]] || cargo install mdbook-pdf --locked
+          [[ -f ~/.cargo/bin/mdbook-auto-gen-summary ]] || cargo install mdbook-auto-gen-summary --locked
 
       - name: Generate SUMMARY.md
         run: |
           rm -f src/SUMMARY.md
           mdbook-auto-gen-summary gen src
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: Build mdBook
+      - name: Build mdBook HTML
         run: mdbook build
 
-      - name: Upload artifact
+      - name: Build mdBook EPUB
+        run: mdbook-epub
+
+      - name: Build mdBook PDF
+        run: mdbook-pdf
+
+      - name: Upload HTML artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: book
+          path: book/html
+
+      - name: Upload EPUB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: book-epub
+          path: book.epub
+
+      - name: Upload PDF artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: book-pdf
+          path: book.pdf
 
   deploy:
     environment:
