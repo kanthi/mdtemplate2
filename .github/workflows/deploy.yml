@@ -59,7 +59,9 @@ jobs:
       - name: Generate SUMMARY.md
         run: |
           rm -f src/SUMMARY.md
-          mdbook-auto-gen-summary gen src
+          cd src
+          mdbook-auto-gen-summary gen .
+          cd ..
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
