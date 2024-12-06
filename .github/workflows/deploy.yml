@@ -58,27 +58,23 @@ jobs:
 
       - name: Generate SUMMARY.md
         run: |
-          #!/bin/bash
-          cd src
+          rm -f src/SUMMARY.md
+          mdbook-auto-gen-summary gen src
 
-          # Create SUMMARY.md with ordered chapters
-          echo "# Summary" > SUMMARY.md
-          echo "" >> SUMMARY.md
 
-          # Find and sort directories with numeric prefixes
-          for dir in $(find . -maxdepth 1 -type d | grep -E '^\./[0-9]+' | sort -V); do
-            dirname=$(basename "$dir")
-            chapter_name=$(echo "$dirname" | sed 's/^[0-9]\+_*//')
-            echo "- [${chapter_name}](${dirname}/README.md)" >> SUMMARY.md
-
-            # Find and sort subsections within the chapter
-            for subfile in $(find "$dir" -maxdepth 1 -type f -name "*.md" ! -name "README.md" | sort); do
-              filename=$(basename "$subfile")
-              section_name=$(echo "$filename" | sed 's/\.md$//' | sed 's/^[0-9]\+_*//')
-              echo "  - [${section_name}](${dirname}/${filename})" >> SUMMARY.md
-            done
-            echo "" >> SUMMARY.md
-          done
+      - name: Generate SUMMARY.md
+        run: |
+          # Check if src directory exists and is not empty
+          if [ -d "src" ] && [ "$(ls -A src)" ]; then
+            # Only attempt to generate if markdown files exist
+            if ls src/*.md &>/dev/null; then
+              mdbook-auto-gen-summary gen src || echo "SUMMARY.md generation skipped"
+            else
+              echo "No markdown files found in src directory"
+            fi
+          else
+            echo "Source directory is empty or does not exist"
+          fi
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
