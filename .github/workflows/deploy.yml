@@ -23,13 +23,13 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0  # Fetch all history for proper versioning
-      
+
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           profile: minimal
-      
+
       - name: Cache dependencies
         uses: actions/cache@v3
         with:
@@ -40,27 +40,26 @@ jobs:
             ~/.cargo/git/db/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: ${{ runner.os }}-cargo-
-      
+
       - name: Install mdBook and plugins
         run: |
           cargo install mdbook --no-default-features --features search
           cargo install mdbook-epub
           cargo install mdbook-pdf
           cargo install mdbook-auto-gen-summary
-      
+
       - name: Generate SUMMARY.md
         run: |
-          cd src
-          mdbook-auto-gen-summary gen .
-          cd ..
-      
+          mdbook-auto-gen-summary gen src
+
+
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v3
-      
+
       - name: Build with mdBook
         run: mdbook build
-      
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:
