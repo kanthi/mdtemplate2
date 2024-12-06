@@ -1,0 +1,72 @@
+/* Basic styles for EPUB output */
+body {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    padding: 1em;
+    margin: auto;
+    max-width: 45em;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: #2c3e50;
+    font-weight: 600;
+    line-height: 1.25;
+    margin-bottom: 1em;
+}
+
+h1 { font-size: 2em; }
+h2 { font-size: 1.75em; }
+h3 { font-size: 1.5em; }
+h4 { font-size: 1.25em; }
+
+code {
+    font-family: "Source Code Pro", Consolas, "Ubuntu Mono", Menlo, monospace;
+    font-size: 0.9em;
+    background-color: #f7f7f7;
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+}
+
+pre {
+    background-color: #f7f7f7;
+    padding: 1em;
+    border-radius: 5px;
+    overflow-x: auto;
+}
+
+a {
+    color: #2980b9;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding-left: 1em;
+    color: #666;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1em 0;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 0.5em;
+    text-align: left;
+}
+
+th {
+    background-color: #f7f7f7;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}

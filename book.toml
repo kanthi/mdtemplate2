@@ -1,0 +1,38 @@
+[book]
+name = "MDBook Template"
+authors = ["Your Name"]
+description = "A template for MDBook documentation"
+language = "en"
+multilingual = false
+src = "src"
+
+[output.html]
+default-theme = "light"
+preferred-dark-theme = "navy"
+git-repository-url = "YOUR_GITHUB_REPO_URL"
+git-repository-icon = "fa-github"
+mathjax-support = true
+additional-css = ["custom.css"]
+no-section-label = true
+
+[output.html.fold]
+enable = true
+level = 1
+
+[output.pdf]
+optional = true
+paper-width = 8.5
+paper-height = 11
+margin-top = 1.2
+margin-bottom = 1.2
+margin-left = 1.2
+margin-right = 1.2
+print-toc = true
+no-page-break-before-chapter = true
+two-sided = false
+
+[output.epub]
+optional = true
+
+[preprocessor.auto-gen-summary]
+command = "mdbook-auto-gen-summary"

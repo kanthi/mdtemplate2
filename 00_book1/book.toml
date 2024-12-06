@@ -1,0 +1,39 @@
+[book]
+name = "Linux Commands Guide"
+authors = ["Your Name"]
+description = "A comprehensive guide to Linux commands and their usage"
+language = "en"
+multilingual = false
+src = "src"
+
+[output.html]
+default-theme = "light"
+preferred-dark-theme = "navy"
+git-repository-url = "YOUR_REPO_URL"
+git-repository-icon = "fa-github"
+mathjax-support = true
+additional-css = ["src/custom.css"]
+
+[output.pdf]
+optional = true
+paper-size = "a4"
+margin-top = 1.5
+margin-bottom = 1.5
+margin-left = 2.0
+margin-right = 2.0
+
+[output.epub]
+optional = true
+use-default-css = true
+cover-image = "cover.html"
+additional-css = ["src/epub.css"]
+
+[preprocessor.links]
+# Fixes links between books
+renderers = ["html"]
+
+[preprocessor.index]
+
+[preprocessor.toc]
+command = "mdbook-toc"
+renderer = ["html"]
