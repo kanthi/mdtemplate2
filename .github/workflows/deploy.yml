@@ -56,12 +56,22 @@ jobs:
             cargo install mdbook-auto-gen-summary --locked
           fi
 
+
+
+
       - name: Generate SUMMARY.md
         run: |
-          rm -f src/SUMMARY.md
-          cd src
-          mdbook-auto-gen-summary gen .
-          cd ..
+          # Check if src directory exists and is not empty
+          if [ -d "src" ] && [ "$(ls -A src)" ]; then
+            # Only attempt to generate if markdown files exist
+            if ls src/*.md &>/dev/null; then
+              mdbook-auto-gen-summary gen src || echo "SUMMARY.md generation skipped"
+            else
+              echo "No markdown files found in src directory"
+            fi
+          else
+            echo "Source directory is empty or does not exist"
+          fi
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
