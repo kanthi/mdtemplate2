@@ -13,9 +13,14 @@ on:
     branches: [ main, master ]  # Run on PRs targeting main or master
   workflow_dispatch:           # Allow manual trigger from GitHub UI
 
+env:
+  CARGO_TERM_COLOR: always
+
 jobs:
   build:
     runs-on: ubuntu-latest    # Use Ubuntu as our build environment
+    outputs:
+      build_status: ${{ steps.build_step.outputs.status }}
 
     steps:
     # Check out the repository code
@@ -25,11 +30,10 @@ jobs:
 
     # Install Rust toolchain
     - name: Install Rust
-      uses: actions-rs/toolchain@v1
+      uses: dtolnay/rust-toolchain@stable
       with:
-        toolchain: stable
-        profile: minimal
-
+        components: clippy
+        
     # Cache cargo dependencies to speed up builds
     - name: Cache Cargo dependencies
       uses: actions/cache@v4
@@ -60,11 +64,15 @@ jobs:
 
     # Run the build script that processes all book directories
     - name: Build books
-      run: ./build.sh
+      id: build_step
+      run: |
+        ./build.sh
+        echo "status=success" >> $GITHUB_OUTPUT
 
     # Create zip archives for each built book
     # This step packages the HTML output from mdBook into separate zip files
     - name: Package books
+      if: success()
       run: |
         mkdir artifacts
         for book in [0-9][0-9]_book*/; do
@@ -79,7 +87,8 @@ jobs:
     # Upload the zip files as workflow artifacts
     # These will be available for download from the GitHub Actions interface
     - name: Upload artifacts
-      uses: actions/upload-artifact@v3
+      if: success()
+      uses: actions/upload-artifact@v4
       with:
         name: books
         path: artifacts/*.zip
