@@ -1,6 +1,7 @@
 # GitHub Actions workflow to build mdBook documentation and package it for download
 # This workflow will build all books in directories matching the pattern [0-9][0-9]_book*
 # and create downloadable zip archives for each built book
+# Status: [![Build and Package Books](https://github.com/$OWNER/$REPO/actions/workflows/build.yml/badge.svg)](https://github.com/$OWNER/$REPO/actions/workflows/build.yml)
 
 name: Build and Package Books
 
