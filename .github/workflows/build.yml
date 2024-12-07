@@ -37,7 +37,7 @@ jobs:
       uses: dtolnay/rust-toolchain@stable
       with:
         components: clippy
-        
+
     # Cache cargo dependencies to speed up builds
     - name: Cache Cargo dependencies
       uses: actions/cache@v4
@@ -77,22 +77,31 @@ jobs:
     # Create zip archives for each built book
     # This step packages the HTML output from mdBook into separate zip files
     - name: Package books
+      id: package
       if: success()
       run: |
         mkdir artifacts
         # Get short commit SHA
         SHA=$(git rev-parse --short HEAD)
+
+        # Initialize empty book list
+        BOOK_LIST=""
         
         for book in [0-9][0-9]_book*/; do
           if [ -d "$book/book" ]; then
-            # Get book name without prefix numbers
-            NAME=$(basename "$book" | sed 's/^[0-9][0-9]_book_\?//')
-            zip -r "artifacts/mdbook-${NAME}.zip" "$book/book"
+            # Use the original folder name
+            BOOK_NAME=$(basename "$book")
+            zip -r "artifacts/${BOOK_NAME}.zip" "$book/book"
+            BOOK_LIST="${BOOK_LIST}- ${BOOK_NAME}\\n"
           fi
         done
         if [ -d "master/book" ]; then
-          zip -r "artifacts/mdbook-master.zip" master/book
+          zip -r "artifacts/master.zip" master/book
+          BOOK_LIST="${BOOK_LIST}- master\\n"
         fi
+        echo "book_list<<EOF" >> $GITHUB_OUTPUT
+        echo -e "$BOOK_LIST" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
 
     # Upload the zip files as workflow artifacts
     # These will be available for download from the GitHub Actions interface
@@ -109,16 +118,16 @@ jobs:
       if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
       uses: softprops/action-gh-release@v1
       with:
-        name: "📚 MDBook Build ${{ steps.build_step.outputs.date }}"
+        name: "📚 Book Build ${{ steps.build_step.outputs.date }}"
         tag_name: "v${{ steps.build_step.outputs.date }}"
         files: artifacts/*.zip
         draft: false
         prerelease: false
         generate_release_notes: false
         body: |
-          ## 📚 MDBook Release ${{ steps.build_step.outputs.date }}
-          
+          ## 📚 Book Release ${{ steps.build_step.outputs.date }}
+
           This release contains the latest built versions of all MDBooks in the repository.
-          
+
           ### 📦 Available Books:
-          $(cd artifacts && for f in *.zip; do echo "- ${f%.zip}"; done)
+          ${{ steps.package.outputs.book_list }}
