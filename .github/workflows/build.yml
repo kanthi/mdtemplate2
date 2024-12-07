@@ -15,6 +15,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  DATE: $(date +'%Y-%m-%d')
 
 permissions:
   contents: write
@@ -73,19 +74,28 @@ jobs:
         ./build.sh
         echo "status=success" >> $GITHUB_OUTPUT
 
-    # Create zip archives for each built book
+    # Create zip archives for each built book with better names
     # This step packages the HTML output from mdBook into separate zip files
     - name: Package books
       if: success()
       run: |
         mkdir artifacts
+        # Get short commit SHA
+        SHA=$(git rev-parse --short HEAD)
+        
         for book in [0-9][0-9]_book*/; do
           if [ -d "$book/book" ]; then
-            zip -r "artifacts/$(basename $book).zip" "$book/book"
+            # Extract book name without number prefix
+            BOOK_NAME=$(basename "$book" | sed 's/^[0-9][0-9]_book_\?//')
+            if [ -z "$BOOK_NAME" ]; then
+              BOOK_NAME=$(basename "$book")
+            fi
+            # Create descriptive filename
+            zip -r "artifacts/mdbook-${BOOK_NAME}-${DATE}-${SHA}.zip" "$book/book"
           fi
         done
         if [ -d "master/book" ]; then
-          zip -r artifacts/master.zip master/book
+          zip -r "artifacts/mdbook-master-${DATE}-${SHA}.zip" master/book
         fi
 
     # Upload the zip files as workflow artifacts
@@ -103,9 +113,23 @@ jobs:
       if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
       uses: softprops/action-gh-release@v1
       with:
-        name: "Books Build ${{ github.sha }}"
-        tag_name: "build-${{ github.sha }}"
+        name: "📚 MDBook Build ${{ github.ref_name }} (${{ github.event.head_commit.message }})"
+        tag_name: "release-${{ github.sha }}"
         files: artifacts/*.zip
         draft: false
         prerelease: false
         generate_release_notes: true
+        body: |
+          ## 📖 MDBook Build Release
+          
+          **Branch:** ${{ github.ref_name }}
+          **Commit:** ${{ github.sha }}
+          **Build Date:** ${DATE}
+          
+          ### 📦 Artifacts
+          The following books have been built and packaged:
+          
+          $(ls artifacts/*.zip | sed 's/^artifacts\//- /' | sed 's/.zip$//')
+          
+          ### 📝 Commit Message
+          ${{ github.event.head_commit.message }}
