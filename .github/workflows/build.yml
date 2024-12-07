@@ -16,6 +16,10 @@ on:
 env:
   CARGO_TERM_COLOR: always
 
+permissions:
+  contents: write
+  packages: write
+
 jobs:
   build:
     runs-on: ubuntu-latest    # Use Ubuntu as our build environment
@@ -93,3 +97,15 @@ jobs:
         name: books
         path: artifacts/*.zip
         retention-days: 30     # Keep artifacts for 30 days
+
+    # Create a release with the artifacts
+    - name: Create Release
+      if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+      uses: softprops/action-gh-release@v1
+      with:
+        name: "Books Build ${{ github.sha }}"
+        tag_name: "build-${{ github.sha }}"
+        files: artifacts/*.zip
+        draft: false
+        prerelease: false
+        generate_release_notes: true
