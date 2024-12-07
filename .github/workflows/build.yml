@@ -19,15 +19,40 @@ jobs:
 
     steps:
     # Check out the repository code
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
-    # Install mdBook binary from official releases
-    # We use a specific version to ensure build consistency
-    - name: Install mdBook
+    # Install Rust toolchain
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        profile: minimal
+
+    # Cache cargo dependencies to speed up builds
+    - name: Cache Cargo dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          target/
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-cargo-
+
+    # Install mdBook and required plugins
+    - name: Install mdBook and plugins
       run: |
-        mkdir mdbook
-        curl -sSL https://github.com/rust-lang/mdBook/releases/download/v0.4.36/mdbook-v0.4.36-x86_64-unknown-linux-gnu.tar.gz | tar -xz --directory=./mdbook
-        echo "$PWD/mdbook" >> $GITHUB_PATH
+        if ! command -v mdbook &> /dev/null; then
+          cargo install mdbook --locked --no-default-features --features search
+        fi
+        if ! command -v mdbook-epub &> /dev/null; then
+          cargo install mdbook-epub --locked
+        fi
 
     # Ensure build script has execute permissions
     - name: Make build script executable
