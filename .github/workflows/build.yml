@@ -1,0 +1,60 @@
+# GitHub Actions workflow to build mdBook documentation and package it for download
+# This workflow will build all books in directories matching the pattern [0-9][0-9]_book*
+# and create downloadable zip archives for each built book
+
+name: Build and Package Books
+
+# Define when this workflow will run
+on:
+  push:
+    branches: [ main, master ]  # Run on pushes to main or master branch
+  pull_request:
+    branches: [ main, master ]  # Run on PRs targeting main or master
+  workflow_dispatch:           # Allow manual trigger from GitHub UI
+
+jobs:
+  build:
+    runs-on: ubuntu-latest    # Use Ubuntu as our build environment
+
+    steps:
+    # Check out the repository code
+    - uses: actions/checkout@v3
+
+    # Install mdBook binary from official releases
+    # We use a specific version to ensure build consistency
+    - name: Install mdBook
+      run: |
+        mkdir mdbook
+        curl -sSL https://github.com/rust-lang/mdBook/releases/download/v0.4.36/mdbook-v0.4.36-x86_64-unknown-linux-gnu.tar.gz | tar -xz --directory=./mdbook
+        echo "$PWD/mdbook" >> $GITHUB_PATH
+
+    # Ensure build script has execute permissions
+    - name: Make build script executable
+      run: chmod +x build.sh
+
+    # Run the build script that processes all book directories
+    - name: Build books
+      run: ./build.sh
+
+    # Create zip archives for each built book
+    # This step packages the HTML output from mdBook into separate zip files
+    - name: Package books
+      run: |
+        mkdir artifacts
+        for book in [0-9][0-9]_book*/; do
+          if [ -d "$book/book" ]; then
+            zip -r "artifacts/$(basename $book).zip" "$book/book"
+          fi
+        done
+        if [ -d "master/book" ]; then
+          zip -r artifacts/master.zip master/book
+        fi
+
+    # Upload the zip files as workflow artifacts
+    # These will be available for download from the GitHub Actions interface
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: books
+        path: artifacts/*.zip
+        retention-days: 30     # Keep artifacts for 30 days
