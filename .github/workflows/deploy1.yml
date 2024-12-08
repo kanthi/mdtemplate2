@@ -1,0 +1,96 @@
+name: Deploy mdBook with book-summary tool to GitHub Pages
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+
+      - name: Cache Cargo dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Install mdBook and plugins
+        run: |
+          if ! command -v mdbook &> /dev/null; then
+            cargo install mdbook --locked --no-default-features --features search
+          fi
+          if ! command -v mdbook-epub &> /dev/null; then
+            cargo install mdbook-epub --locked
+          fi
+          if ! command -v mdbook-pdf &> /dev/null; then
+            cargo install mdbook-pdf --locked
+          fi
+          if ! command -v book-summary &> /dev/null; then
+            cargo install book-summary --locked
+          fi
+
+      - name: Generate SUMMARY.md
+        run: |
+          rm -f src/SUMMARY.md
+          book-summary -y
+
+      - name: Generate SUMMARY.md
+        run: |
+          # Check if src directory exists and is not empty
+          if [ -d "src" ] && [ "$(ls -A src)" ]; then
+            # Only attempt to generate if markdown files exist
+            if ls src/*.md &>/dev/null; then
+              book-summary -y || echo "SUMMARY.md generation skipped"
+            else
+              echo "No markdown files found in src directory"
+            fi
+          else
+            echo "Source directory is empty or does not exist"
+          fi
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Build mdBook
+        run: mdbook build
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: book/html
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
