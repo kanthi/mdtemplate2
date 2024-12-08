@@ -1,0 +1,57 @@
+[book]
+authors = ["k1n9"]
+language = "en"
+multilingual = false
+src = "src"
+#title = "K1N9s Notes"
+#description = "BrainDump"
+
+[build]
+build-dir = "/tmp/K1N9sBook"
+create-missing = false
+preprocess = ["links", "index"]
+
+[output.html]
+#theme = "src/theme"
+#theme = "my-theme"
+default-theme = "dark"
+preferred-dark-theme = "ayu"
+#enable = true
+#level = 0
+no-section-label = true
+mathjax-support = true
+#curly-quotes = true
+#google-analytics = "123456"
+#additional-css = ["custom.css", "custom2.css"]
+#additional-js = ["custom.js"]
+#git-repository-url = "https://github.com/kanthi/K1N9sNotes"
+#git-repository-icon = "fa-github"
+
+[output.html.fold]
+enable = true
+level = 2
+
+[output.html.playpen]
+editable = true
+copy-js = true
+line-numbers = true
+
+[output.html.search]
+enable = true
+limit-results = 30
+teaser-word-count = 30
+use-boolean-and = true
+boost-title = 2
+boost-hierarchy = 1
+boost-paragraph = 1
+expand = true
+heading-split-level = 3
+copy-js = true
+
+#[output.api]
+
+[preprocessor.toc]
+command = "mdbook-toc"
+renderer = ["html"]
+
+#[output.epub]
